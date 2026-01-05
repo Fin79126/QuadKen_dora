@@ -1,0 +1,25 @@
+nodes:
+  - id: pc
+    # _unstable_deploy:
+    #   machine: pc
+    build: cargo build -p pc
+    path: ../target/debug/pc
+    inputs:
+      tick: dora/timer/millis/100
+      imu_data: rpi/imu_data
+    outputs:
+      - keys
+      - shutdown
+
+  - id: rpi
+    # _unstable_deploy:
+    #   machine: rpi
+    build: cargo build -p rpi 
+    path: ../target/debug/rpi
+    env:
+      DEBUG: true
+    inputs:
+      keys: pc/keys
+      shutdown: pc/shutdown
+    outputs:
+      - imu_data

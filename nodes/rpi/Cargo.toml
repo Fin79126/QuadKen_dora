@@ -1,0 +1,17 @@
+[package]
+name = "rpi"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+dora-node-api ={ workspace = true }  # Dora の Rust ノード API
+tracing.workspace = true
+tracing-subscriber.workspace = true
+dotenv.workspace = true
+eyre.workspace = true
+tokio.workspace = true
+
+types = { path = "../types" }  # 共通型定義
+
+linux-embedded-hal = "0.4"
+bno055 = "0.4"

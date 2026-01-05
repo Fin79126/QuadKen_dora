@@ -1,0 +1,17 @@
+[workspace]
+resolver = "3"
+members = ["nodes/pc", "nodes/rpi","controller","nodes/types"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+publish = false  # 公開しない場合
+
+[workspace.dependencies]
+dora-node-api = {default-features = false , version = "0.3"}  # Dora の Rust ノード API
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+dotenv = "0.15.0"
+eyre = "0.6"
+tokio = { version = "1.48.0", features = ["full"] } # async が必要な場合

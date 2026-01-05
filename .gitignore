@@ -1,0 +1,11 @@
+.cargo/
+target/
+_work/
+out/
+
+# 自分用 
+.devcontainer/
+.vscode/
+sftp/
+zenoh.json
+MEMO.md

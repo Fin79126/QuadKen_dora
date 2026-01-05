@@ -1,0 +1,25 @@
+nodes:
+  - id: pc
+    _unstable_deploy:
+      machine: pc
+    build: cargo build -p pc --release
+    path: ../../target/release/pc
+    inputs:
+      tick: dora/timer/millis/10
+    outputs:
+      - keys
+      - shutdown
+
+  - id: rpi
+    _unstable_deploy:
+      machine: rpi
+    build: cargo build -p rpi --target=aarch64-unknown-linux-gnu --release
+    # build: cargo build -p rpi 
+    path: /home/taka/sftp/sftp/rpi
+    # path: /target/debug/rpi
+    # path: "../../target/debug/rpi"
+    inputs:
+      keys: pc/keys
+      shutdown: pc/shutdown
+
+

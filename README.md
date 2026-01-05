@@ -1,5 +1,11 @@
 このファイルはめちゃメモファイル
 どこか間違ってるかも
+
+# 構成
+- (controller <-> )pc <-> rpi    ()はdora外
+- controllerを分ける必要は基本ない。
+- controllerをcargoでビルドして、そのexeを実行+dora起動でスタート
+
 # 次
 - cargo install dora-cliでやりたい
   - cargo 重すぎて raspi Zero 2W に入らん

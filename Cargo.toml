@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["nodes/pc", "nodes/rpi","controller","nodes/types"]
+members = ["nodes/pc", "nodes/rpi","controller","nodes/types","nodes/translater"]
 
 [workspace.package]
 version = "0.1.0"

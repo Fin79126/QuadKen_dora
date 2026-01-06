@@ -6,7 +6,7 @@ use dotenv::dotenv;
 use eyre::Context;
 use std::env;
 use tracing::{debug, error, info};
-use types::ImuData;
+use types::imu::ImuData;
 
 fn main() -> eyre::Result<()> {
     dotenv().ok();
@@ -32,11 +32,10 @@ fn main() -> eyre::Result<()> {
         // info!("Event received: {:?}", event);
         match event {
             Event::Input { id, metadata, data } => match id.as_str() {
-                "keys" => {
-                    let received_keys: u16 =
-                        TryFrom::try_from(&data).context("expected u16 message")?;
-                    debug!("get keys : {received_keys:016b}");
-                    if received_keys & 0x0001 != 0 {
+                "command" => {
+                    let command: bool = bool::try_from(&data).context("expected u16 message")?;
+                    debug!("Command received: {}", command);
+                    if command {
                         // ボタン1が押された場合、センサーからデータを取得して表示
                         let euler = bno055.euler_angles().unwrap();
                         debug!(

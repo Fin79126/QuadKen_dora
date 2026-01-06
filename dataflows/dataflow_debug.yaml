@@ -5,12 +5,12 @@ nodes:
     build: cargo build -p pc
     path: ../target/debug/pc
     inputs:
-      tick: dora/timer/millis/100
+      status: translater/status
+      shutdown: translater/shutdown
       imu_data: rpi/imu_data
     outputs:
-      - keys
-      - shutdown
-
+      - command
+    
   - id: rpi
     # _unstable_deploy:
     #   machine: rpi
@@ -19,7 +19,19 @@ nodes:
     env:
       DEBUG: true
     inputs:
-      keys: pc/keys
-      shutdown: pc/shutdown
+      command: pc/command
+      shutdown: translater/shutdown
     outputs:
       - imu_data
+
+  - id: translater
+    # _unstable_deploy:
+    #   machine: pc
+    build: cargo build -p translater
+    path: ../target/debug/translater
+    inputs:
+      tick: dora/timer/millis/100
+    outputs:
+      - status
+      - shutdown
+      

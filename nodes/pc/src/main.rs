@@ -1,5 +1,5 @@
 // #![warn(clippy::single_match)]
-use dora_node_api::{self, DoraNode, Event, IntoArrow, dora_core::config::DataId};
+use dora_node_api::{self, DoraNode, Event, IntoArrow, Parameter, dora_core::config::DataId};
 use tracing::{debug, error, info, trace};
 use types::{controller::StatusController, imu::ImuData};
 
@@ -11,6 +11,7 @@ fn main() -> eyre::Result<()> {
         .ok(); // すでに初期化されている場合は無視
 
     let out_command = DataId::from("command".to_owned());
+    let out_rerun = DataId::from("imu_rerun".to_owned());
     let (mut node, mut events) = DoraNode::init_from_env()?;
 
     while let Some(event) = events.recv() {
@@ -19,6 +20,12 @@ fn main() -> eyre::Result<()> {
                 "imu_data" => {
                     let imu: ImuData = ImuData::try_from(&data)?;
                     debug!("{:?}", imu);
+                    let mut param = metadata.parameters;
+                    param.insert(
+                        "primitive".to_string(),
+                        Parameter::String("series".to_string()),
+                    );
+                    node.send_output(out_rerun.clone(), param, imu.into_arrow())?;
                 }
                 "shutdown" => {
                     info!("shutdown received, exiting");

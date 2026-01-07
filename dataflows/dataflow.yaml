@@ -5,21 +5,30 @@ nodes:
     build: cargo build -p pc --release
     path: ../../target/release/pc
     inputs:
-      tick: dora/timer/millis/10
+      status: translater/status
+      shutdown: translater/shutdown
+      imu_data: rpi/imu_data
     outputs:
-      - keys
-      - shutdown
+      - command
 
   - id: rpi
     _unstable_deploy:
       machine: rpi
     build: cargo build -p rpi --target=aarch64-unknown-linux-gnu --release
-    # build: cargo build -p rpi 
-    path: /home/taka/sftp/sftp/rpi
-    # path: /target/debug/rpi
-    # path: "../../target/debug/rpi"
+    path: /home/taka/Quadken/sftp/rpi
     inputs:
-      keys: pc/keys
-      shutdown: pc/shutdown
+      command: pc/command
+      shutdown: translater/shutdown
+    outputs:
+      - imu_data
 
-
+  - id: translater
+    _unstable_deploy:
+      machine: pc
+    build: cargo build -p translater --release
+    path: ../../target/release/translater
+    inputs:
+      tick: dora/timer/millis/100
+    outputs:
+      - status
+      - shutdown

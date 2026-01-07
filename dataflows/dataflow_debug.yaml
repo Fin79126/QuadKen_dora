@@ -10,6 +10,7 @@ nodes:
       imu_data: rpi/imu_data
     outputs:
       - command
+      - imu_rerun
     
   - id: rpi
     # _unstable_deploy:
@@ -34,4 +35,11 @@ nodes:
     outputs:
       - status
       - shutdown
-      
+
+  - id: dora-rerun
+    # build: cargo build -p dora-rerun
+    path: ../target/debug/dora-rerun
+    env:
+      "OPERATING_MODE": "SAVE"
+    inputs:
+      imu_rerun: pc/imu_rerun

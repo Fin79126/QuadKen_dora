@@ -15,6 +15,7 @@ pub struct StatusController {
     pub angle_horizontal: f32,
     pub angle_vertical: f32,
     pub roll_power: f32,
+    pub buttons: u16,
 }
 
 impl IntoArrow for StatusController {
@@ -25,6 +26,7 @@ impl IntoArrow for StatusController {
             self.angle_horizontal,
             self.angle_vertical,
             self.roll_power,
+            self.buttons as f32,
         ]
         .into_arrow()
     }
@@ -36,14 +38,15 @@ impl TryFrom<&dora_node_api::ArrowData> for StatusController {
         let array = value
             .as_primitive_opt::<Float32Type>()
             .context("expected Float32 array")?;
-        if array.len() != 4 {
-            eyre::bail!("expected 4 elements for StatusController");
+        if array.len() != 5 {
+            eyre::bail!("expected 5 elements for StatusController");
         }
         Ok(StatusController {
             move_power: array.value(0),
             angle_horizontal: array.value(1),
             angle_vertical: array.value(2),
             roll_power: array.value(3),
+            buttons: array.value(4) as u16,
         })
     }
 }

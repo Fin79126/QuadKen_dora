@@ -1,0 +1,15 @@
+[package]
+name = "udp_tx_pc"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+dora-node-api ={ workspace = true }  # Dora の Rust ノード API
+tracing.workspace = true
+tracing-subscriber.workspace = true
+eyre.workspace = true
+dotenv.workspace = true
+tokio.workspace = true
+
+types ={ path = "../../types" }
+

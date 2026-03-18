@@ -1,5 +1,5 @@
 [package]
-name = "translater"
+name = "bno_sensor"
 version.workspace = true
 edition.workspace = true
 
@@ -11,6 +11,5 @@ eyre.workspace = true
 dotenv.workspace = true
 tokio.workspace = true
 
-types ={ path = "../types" }
+types ={ path = "../../types" }
 
-rand = "0.9.2"

@@ -10,7 +10,7 @@
 - cargo install dora-cliでやりたい
   - cargo 重すぎて raspi Zero 2W に入らん
   - uv なら入る
-- operator は コールバック ぽい
+- operator は コールバック ぽい <- 多分違う
 
 # コマンド
 - dora coordinator

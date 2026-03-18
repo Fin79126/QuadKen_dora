@@ -34,12 +34,10 @@ impl Bno {
     pub fn euler_angles(
         &mut self,
     ) -> Result<bno055::mint::EulerAngles<f32, ()>, BnoError<I2CError>> {
-        if self.inner.is_none() {
-            let euler = bno055::mint::EulerAngles::from([0.0, 0.0, 0.0]);
-            Ok(euler)
+        if let Some(inner) = self.inner.as_mut() {
+            inner.euler_angles()
         } else {
-            let euler = self.inner.as_mut().unwrap().euler_angles()?;
-            Ok(euler)
+            Ok(bno055::mint::EulerAngles::from([0.0, 0.0, 0.0]))
         }
     }
 }

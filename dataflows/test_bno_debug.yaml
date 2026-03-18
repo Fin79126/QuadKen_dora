@@ -1,0 +1,17 @@
+nodes:
+  - id: bno_sensor
+    build: cargo build -p bno_sensor
+    path: ../target/debug/bno_sensor
+    env:
+      DEBUG: true
+    inputs:
+      tick: dora/timer/millis/100
+    outputs:
+      - imu_data
+    
+  - id: input
+    build: cargo build -p input
+    path: ../target/debug/input
+    inputs:
+      input_test: bno_sensor/imu_data
+

@@ -1,6 +1,6 @@
-use dora_node_api::{self, dora_core::config::DataId, DoraNode, Event, IntoArrow};
-use tracing::{debug, error, info, trace};
-use types::{controller::StatusController, imu::ImuData};
+use dora_node_api::{self, DoraNode, Event};
+use tracing::{debug, error, info};
+use types::imu::ImuData;
 
 fn main() -> eyre::Result<()> {
     tracing_subscriber::fmt()
@@ -9,12 +9,16 @@ fn main() -> eyre::Result<()> {
         .try_init()
         .ok(); // すでに初期化されている場合は無視
 
-    let out_command = DataId::from("command".to_owned());
-    let (mut node, mut events) = DoraNode::init_from_env()?;
+    // let out_command = DataId::from("command".to_owned());
+    let (_, mut events) = DoraNode::init_from_env()?;
 
     while let Some(event) = events.recv() {
         match event {
-            Event::Input { id, metadata, data } => match id.as_str() {
+            Event::Input {
+                id,
+                metadata: _,
+                data,
+            } => match id.as_str() {
                 "imu_data" => {
                     let imu: ImuData = ImuData::try_from(&data)?;
                     debug!("{:?}", imu);

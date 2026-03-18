@@ -1,7 +1,5 @@
 nodes:
   - id: controller_rx
-    # _unstable_deploy:
-    #   machine: pc
     build: cargo build -p controller_rx
     path: ../target/debug/controller_rx
     inputs:
@@ -10,12 +8,8 @@ nodes:
       - status
     
   - id: input
-    # _unstable_deploy:
-    #   machine: rpi
     build: cargo build -p input
     path: ../target/debug/input
-    env:
-      DEBUG: true
     inputs:
       input_test: controller_rx/status
 

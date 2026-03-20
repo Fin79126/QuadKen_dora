@@ -1,38 +1,135 @@
-use dora_node_api::{self, DoraNode, Event};
-use tracing::{debug, error, info};
-use types::imu::ImuData;
+use dora_node_api::{
+    self, DoraNode, Event, EventStream, IntoArrow, Parameter, dora_core::config::DataId,
+    init_tracing,
+};
+use eyre::Context;
+use std::collections::BTreeMap;
+use tracing::{Level, debug, error, info, span};
+use types::{ImuData, MotorCommand, StatusController};
 
-fn main() -> eyre::Result<()> {
-    tracing_subscriber::fmt()
-        // .with_ansi(false)
-        .with_env_filter("debug")
-        .try_init()
-        .ok(); // すでに初期化されている場合は無視
+fn compute_motor_command(controller: &StatusController, imu: &ImuData) -> MotorCommand {
+    // ----------------------------
+    // ① 基本移動（前後）
+    // ----------------------------
+    let base = controller.move_power;
 
-    // let out_command = DataId::from("command".to_owned());
-    let (_, mut events) = DoraNode::init_from_env()?;
+    // ----------------------------
+    // ② 旋回（左右差動）
+    // ----------------------------
+    let turn = controller.angle_horizontal;
 
-    while let Some(event) = events.recv() {
-        match event {
-            Event::Input {
-                id,
-                metadata: _,
-                data,
-            } => match id.as_str() {
-                "imu_data" => {
-                    let imu: ImuData = ImuData::try_from(&data)?;
-                    debug!("{:?}", imu);
-                }
-                "shutdown" => {
-                    info!("shutdown received, exiting");
-                    return Ok(());
-                }
-                other => error!("Ignoring unexpected input `{other}`"),
-            },
-            Event::Stop(_) => info!("Received stop"),
-            other => error!("Received unexpected input: {other:?}"),
-        }
+    // ----------------------------
+    // ③ 姿勢補正（ロール）
+    // ----------------------------
+    // IMUのrollを使って安定化
+    let roll_correction = imu.roll * controller.roll_power;
+
+    // ----------------------------
+    // ④ モーター出力
+    // ----------------------------
+    let mut left = base + turn - roll_correction;
+    let mut right = base - turn + roll_correction;
+
+    // ----------------------------
+    // ⑤ 出力制限（重要）
+    // ----------------------------
+    left = left.clamp(-1.0, 1.0);
+    right = right.clamp(-1.0, 1.0);
+
+    // ----------------------------
+    // ⑥ サーボ制御（上下角）
+    // ----------------------------
+    let mut servo = controller.angle_vertical;
+
+    // サーボも安全範囲に制限（例）
+    servo = servo.clamp(-1.0, 1.0);
+
+    // ----------------------------
+    // ⑦ ボタン処理（例）
+    // ----------------------------
+    // 例: ボタン0が押されたら緊急停止
+    if controller.buttons & (1 << 0) != 0 {
+        left = 0.0;
+        right = 0.0;
     }
 
+    MotorCommand {
+        motor_left: left,
+        motor_right: right,
+        servo,
+    }
+}
+
+fn main() -> eyre::Result<()> {
+    let (node, events) = DoraNode::init_from_env()?;
+    let rt = tokio::runtime::Builder::new_multi_thread()
+        .enable_io()
+        .enable_time()
+        .build()
+        .context("failed to build tokio runtime")?;
+    let rt_guard = rt.enter();
+    let tracing_guard =
+        init_tracing(&node.id().clone(), node.dataflow_id()).context("failed to init tracing")?;
+    std::thread::sleep(std::time::Duration::from_millis(100));
+
+    let result = run(node, events);
+
+    drop(tracing_guard);
+    drop(rt_guard);
+    result
+}
+
+fn run(mut node: DoraNode, mut events: EventStream) -> eyre::Result<()> {
+    let out_command = DataId::from("command".to_owned());
+    let mut metadata = BTreeMap::new();
+    metadata.insert(
+        "primitive".to_string(),
+        Parameter::String("series".to_string()),
+    );
+    let mut latest_imu: Option<ImuData> = None;
+    let mut latest_controller: Option<StatusController> = None;
+
+    {
+        let span = span!(Level::INFO, "Input TEST");
+        let _enter = span.enter();
+        // use a fixed seed for reproducibility (we use this node's output in integration tests)
+        while let Some(event) = events.recv() {
+            match event {
+                Event::Input {
+                    id,
+                    metadata: _,
+                    data,
+                } => match id.as_str() {
+                    "imu_data" => {
+                        latest_imu = Some(ImuData::try_from(&data)?);
+                        debug!("{:?}", latest_imu);
+                    }
+                    "status" => {
+                        latest_controller = Some(StatusController::try_from(&data)?);
+                        debug!("{:?}", latest_controller);
+                    }
+                    "tick" => {
+                        // ここで制御ロジックを実行
+                        if let (Some(imu), Some(controller)) = (&latest_imu, &latest_controller) {
+                            // 制御ロジックの実装例（ダミー）
+                            let command = compute_motor_command(controller, imu);
+                            debug!("Computed command: {:?}", command);
+                            node.send_output(
+                                out_command.clone(),
+                                metadata.clone(),
+                                command.into_arrow(),
+                            )?;
+                        } else {
+                            debug!("Waiting for both imu and controller data...");
+                        }
+                    }
+
+                    other => error!("Ignoring unexpected input `{other}`"),
+                },
+                Event::Stop(_) => info!("Received stop"),
+                other => error!("Received unexpected input: {other:?}"),
+            }
+        }
+    }
     Ok(())
 }

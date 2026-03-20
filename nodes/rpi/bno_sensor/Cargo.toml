@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-dora-node-api ={ workspace = true }  # Dora の Rust ノード API
+dora-node-api ={ workspace = true, features = ["tracing", "metrics"] }  # Dora の Rust ノード API
 tracing.workspace = true
 tracing-subscriber.workspace = true
 eyre.workspace = true

@@ -12,6 +12,8 @@ members = [
     "nodes/rpi/udp_tx_pc",
     "nodes/rpi/udp_tx_esp",
     "nodes/tests/input",
+    "otlp",
+    "nodes/tests/otlp_log"
 ]
 
 [workspace.package]
@@ -20,7 +22,7 @@ edition = "2024"
 publish = false  # 公開しない場合
 
 [workspace.dependencies]
-dora-node-api = {default-features = false , version = "0.4.1"}  # Dora の Rust ノード API
+dora-node-api = {default-features = true , version = "0.4.1"}  # Dora の Rust ノード API
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 

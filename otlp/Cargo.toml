@@ -1,0 +1,14 @@
+[package]
+name = "otlp"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+opentelemetry = { version = "0.31.0", features = ["trace"] }
+opentelemetry_sdk = { version = "0.31.0", features = ["trace", "rt-tokio"] }
+opentelemetry-otlp = { version = "0.31.0", features = ["grpc-tonic", "trace", "tls-roots"] }
+tokio = { version = "1", features = ["full"] }
+tonic = { version = "0.14", features = ["tls-native-roots"] }
+tracing-subscriber = { version = "0.3.20", features = ["fmt", "env-filter"] }
+tracing-opentelemetry = "0.32.0"
+tracing = "0.1.33"

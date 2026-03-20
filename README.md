@@ -1,6 +1,15 @@
 このファイルはめちゃメモファイル
 どこか間違ってるかも
 
+### rerun
+uv pip install rerun-sdk
+export RERUN_SERVER_ADDR=rerun+http://host.docker.internal:9876/proxy
+export OPERATING_MODE=CONNECT
+
+### signoz
+export DORA_OTLP_ENDPOINT="http://host.docker.internal:4317"
+export OTEL_SERVICE_NAME=QuadKen
+
 # 構成
 - (controller <-> )pc <-> rpi    ()はdora外
 - controllerを分ける必要は基本ない。
@@ -59,6 +68,9 @@ dora daemon --machine-id rpi --coordinator-addr <coordinator_ip>
 - coordinator でWARN 時間の同期ずれ サービス内Windows Time を ON にして ターミナルで w32tm /resync
 - https://zenoh.io/docs/getting-started/quick-test/
 - udpのポートがランダムで変わる
+- ポートふぉわディングのせいで rerunが動かない
+- Runtime に enable_io を登録しなかった
+- tracingを 初期化する前に span! を読んでる場合がある。
 
 
 

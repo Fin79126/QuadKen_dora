@@ -1,0 +1,17 @@
+nodes:
+  - id: otlp_log
+    build: cargo build -p otlp_log
+    path: ../target/debug/otlp_log
+    env:
+      DEBUG: true
+    inputs:
+      tick: dora/timer/millis/100
+    outputs:
+      - random
+
+  - id: input
+    build: cargo build -p input
+    path: ../target/debug/input
+    inputs:
+      input_test: otlp_log/random
+    

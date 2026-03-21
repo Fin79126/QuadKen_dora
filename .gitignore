@@ -9,3 +9,4 @@ out/
 sftp/
 zenoh.json
 MEMO.md
+otlp/

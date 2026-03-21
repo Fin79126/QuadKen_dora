@@ -13,7 +13,6 @@ use tracing::{debug, error, info};
 use types::imu::ImuData;
 
 fn main() -> eyre::Result<()> {
-    dotenv().ok();
     let (node, events) = DoraNode::init_from_env()?;
     let rt = tokio::runtime::Builder::new_multi_thread()
         .enable_io()
@@ -33,6 +32,7 @@ fn main() -> eyre::Result<()> {
 }
 
 fn run(mut node: DoraNode, mut events: dora_node_api::EventStream) -> eyre::Result<()> {
+    dotenv().ok();
     let debug_mode = env::var("DEBUG")
         .unwrap_or_else(|_| false.to_string())
         .parse::<bool>()
@@ -58,11 +58,11 @@ fn run(mut node: DoraNode, mut events: dora_node_api::EventStream) -> eyre::Resu
                 } => match id.as_str() {
                     "tick" => {
                         // ボタン1が押された場合、センサーからデータを取得して表示
-                        let euler = bno055.euler_angles().unwrap();
+                        let euler = bno055.euler_angles().unwrap_or_default();
                         let return_data = ImuData {
-                            roll: euler.a,
-                            pitch: euler.b,
-                            yaw: euler.c,
+                            roll: euler.roll,
+                            pitch: euler.pitch,
+                            yaw: euler.yaw,
                         };
                         debug!("return_data: {:?}", return_data);
                         node.send_output(

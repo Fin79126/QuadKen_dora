@@ -6,6 +6,7 @@ use bno055::{BNO055OperationMode, Bno055, Error as BnoError};
 use eyre::Context;
 use linux_embedded_hal::{Delay, I2CError, I2cdev};
 use std::thread;
+use types::imu::ImuData;
 
 pub struct Bno {
     inner: Option<Bno055<I2cdev>>,
@@ -36,11 +37,14 @@ impl Bno {
         }
     }
 
-    pub fn euler_angles(
-        &mut self,
-    ) -> Result<bno055::mint::EulerAngles<f32, ()>, BnoError<I2CError>> {
+    pub fn euler_angles(&mut self) -> Result<ImuData, BnoError<I2CError>> {
         if let Some(inner) = self.inner.as_mut() {
-            inner.euler_angles()
+            let euler = inner.euler_angles()?;
+            Ok(ImuData {
+                roll: euler.a,
+                pitch: euler.b,
+                yaw: euler.c,
+            })
         } else {
             // 位相を進める
             self.phase += 0.05;
@@ -49,7 +53,7 @@ impl Bno {
             let pitch = (self.phase * 0.5).cos() * 20.0; // -20〜20度
             let yaw = (self.phase * 0.2).sin() * 45.0; // -45〜45度
 
-            Ok(bno055::mint::EulerAngles::from([roll, pitch, yaw]))
+            Ok(ImuData { roll, pitch, yaw })
         }
     }
 }

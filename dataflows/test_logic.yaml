@@ -1,25 +1,31 @@
 nodes:
   - id: controller_rx
+    _unstable_deploy:
+      machine: pc
     build: cargo build -p controller_rx
-    path: ../target/debug/controller_rx
+    path: ../../target/debug/controller_rx
     inputs:
       tick: dora/timer/millis/100
     outputs:
       - status
 
   - id: bno_sensor
-    build: cargo build -p bno_sensor
-    path: ../target/debug/bno_sensor
+    _unstable_deploy:
+      machine: rpi
+    build: cargo build -p bno_sensor --target=aarch64-unknown-linux-gnu
+    path: /home/taka/Quadken/sftp/bno_sensor
     env:
-      DEBUG: true
+      DEBUG: false
     inputs:
       tick: dora/timer/millis/100
     outputs:
       - imu_data
 
   - id: control_logic
+    _unstable_deploy:
+      machine: pc
     build: cargo build -p control_logic
-    path: ../target/debug/control_logic
+    path: ../../target/debug/control_logic
     inputs:
       imu_data: bno_sensor/imu_data
       status: controller_rx/status
@@ -28,12 +34,16 @@ nodes:
       - command
 
   - id: input
+    _unstable_deploy:
+      machine: pc
     build: cargo build -p input
-    path: ../target/debug/input
+    path: ../../target/debug/input
     inputs:
       input_test: control_logic/command
 
   - id: rerun
+    _unstable_deploy:
+      machine: pc
     build: uv pip install dora-rerun
     path: dora-rerun
     inputs:

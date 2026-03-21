@@ -2,7 +2,7 @@ nodes:
   - id: pc
     _unstable_deploy:
       machine: pc
-    build: cargo build -p pc --release
+    build: cargo build -p pc
     path: ../../target/release/pc
     inputs:
       tick: dora/timer/millis/10

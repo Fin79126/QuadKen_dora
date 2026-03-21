@@ -2,11 +2,14 @@
 どこか間違ってるかも
 
 ### rerun
-uv pip install rerun-sdk
+グラフでデータをプロットするやつ。ログじゃない
+<!-- uv pip install rerun-sdk -->
+下をdaemon の方で指定？
 export RERUN_SERVER_ADDR=rerun+http://host.docker.internal:9876/proxy
 export OPERATING_MODE=CONNECT
 
 ### signoz
+ログをトレースするやつ。後からエラーチェック要因
 export DORA_OTLP_ENDPOINT="http://host.docker.internal:4317"
 export OTEL_SERVICE_NAME=QuadKen
 

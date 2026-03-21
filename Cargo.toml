@@ -13,7 +13,8 @@ members = [
     "nodes/rpi/udp_tx_esp",
     "nodes/tests/input",
     "otlp",
-    "nodes/tests/otlp_log"
+    "nodes/tests/otlp_log",
+    "nodes/tests/send_command"
 ]
 
 [workspace.package]

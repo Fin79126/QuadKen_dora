@@ -12,4 +12,6 @@ dotenv.workspace = true
 tokio.workspace = true
 
 types ={ path = "../../types" }
-
+postcard = "1"
+serde = { version = "1", features = ["derive"] }
+heapless = "0.9"

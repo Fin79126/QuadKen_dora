@@ -1,0 +1,34 @@
+nodes:
+  - id: send_command
+    _unstable_deploy:
+      machine: pc
+    build: cargo build -p send_command
+    path: ../../target/debug/send_command
+    inputs:
+      tick: dora/timer/millis/1000
+    outputs:
+      - command
+
+  - id: udp_tx_esp
+    _unstable_deploy:
+      machine: rpi
+    build: cargo build -p udp_tx_esp --target=aarch64-unknown-linux-gnu
+    path: /home/taka/Quadken/sftp/udp_tx_esp
+    env:
+      ESP_IP: "192.168.11.28"
+      ESP_PORT: "5001"
+    inputs:
+      command: send_command/command
+
+
+
+
+  - id: input
+    _unstable_deploy:
+      machine: pc
+    build: cargo build -p input
+    path: ../../target/debug/input
+    inputs:
+      input_test: send_command/command
+
+

@@ -7,7 +7,7 @@ use dora_node_api::{
 };
 use eyre::ContextCompat;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ImuData {
     pub roll: f32,
     pub pitch: f32,

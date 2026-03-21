@@ -6,3 +6,5 @@ edition.workspace = true
 [dependencies]
 dora-node-api.workspace = true
 eyre.workspace = true
+postcard = "1"
+serde = { version = "1", features = ["derive"] }

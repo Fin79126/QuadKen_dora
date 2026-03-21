@@ -6,8 +6,9 @@ use dora_node_api::{
     },
 };
 use eyre::ContextCompat;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MotorCommand {
     pub motor_left: f32,
     pub motor_right: f32,

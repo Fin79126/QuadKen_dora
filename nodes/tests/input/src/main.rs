@@ -35,7 +35,9 @@ fn run(_: DoraNode, mut events: EventStream) -> eyre::Result<()> {
                     data,
                 } => match id.as_str() {
                     "input_test" => {
-                        info!("Raw data: {:?}", data);
+                        let trimmed = format!("{:?}", data);
+                        let trimmed = &trimmed[trimmed.find('[').unwrap_or(0)..];
+                        info!("Raw data: {}", trimmed.replace("\n", ""));
                     }
                     other => error!("Ignoring unexpected input `{other}`"),
                 },

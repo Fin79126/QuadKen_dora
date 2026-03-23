@@ -1,0 +1,15 @@
+nodes:
+  - id: send_main_command
+    build: cargo build -p send_main_command
+    path: ../target/debug/send_main_command
+    inputs:
+      tick: dora/timer/secs/2
+    outputs:
+      - main_command
+
+  - id: input
+    build: cargo build -p input
+    path: ../target/debug/input
+    inputs:
+      input_test: send_main_command/main_command
+    

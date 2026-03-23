@@ -2,8 +2,8 @@
 use dora_node_api::{self, DoraNode, Event, EventStream, init_tracing};
 use eyre::Context;
 use std::net::UdpSocket;
-use tracing::{Level, error, info, span};
-use types::MotorCommand;
+use tracing::{Level, debug, error, info, span};
+use types::BattCommand;
 
 fn main() -> eyre::Result<()> {
     let (node, events) = DoraNode::init_from_env()?;
@@ -27,7 +27,7 @@ fn main() -> eyre::Result<()> {
 fn run(_: DoraNode, mut events: EventStream) -> eyre::Result<()> {
     dotenv::dotenv().ok(); // .envから環境変数を読み込む
     let esp_ip = std::env::var("ESP_IP").unwrap_or_else(|_| "192.168.4.1".into());
-    let esp_port = std::env::var("ESP_PORT").unwrap_or_else(|_| "5001".into());
+    let esp_port = std::env::var("ESP_UDP_PORT").unwrap_or_else(|_| "5001".into());
     let socket = UdpSocket::bind("0.0.0.0:0")?; // 適当なポートでOK
     let target_addr: &str = &format!("{}:{}", esp_ip, esp_port); // ESP32側a
 
@@ -42,10 +42,10 @@ fn run(_: DoraNode, mut events: EventStream) -> eyre::Result<()> {
                 data,
             } => match id.as_str() {
                 "command" => {
-                    let command = MotorCommand::try_from(&data)?;
-                    info!("Received motor command: {:?}", command);
+                    let command = BattCommand::try_from(&data)?;
+                    debug!("Received battery command: {:?}", command);
 
-                    let serialized = postcard::to_vec::<MotorCommand, 96>(&command)?;
+                    let serialized = postcard::to_vec::<BattCommand, 96>(&command)?;
 
                     // 👇 UDP送信
                     socket.send_to(&serialized, target_addr)?;

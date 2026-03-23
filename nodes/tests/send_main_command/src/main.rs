@@ -3,7 +3,7 @@ use dora_node_api::{
 };
 use eyre::Context;
 use tracing::{Level, span};
-use types::BattCommand;
+use types::MainCommand;
 
 fn main() -> eyre::Result<()> {
     let (node, events) = DoraNode::init_from_env()?;
@@ -30,8 +30,9 @@ fn run(mut node: DoraNode, mut events: EventStream) -> eyre::Result<()> {
         let _enter = span.enter();
         // use a fixed seed for reproducibility (we use this node's output in integration tests)
         fastrand::seed(42);
+        let mut counter = 0;
 
-        let output = DataId::from("command".to_owned());
+        let output = DataId::from("main_command".to_owned());
         while let Some(event) = events.recv() {
             let event_span = span!(Level::DEBUG, "event");
             let _event_enter = event_span.enter();
@@ -44,14 +45,16 @@ fn run(mut node: DoraNode, mut events: EventStream) -> eyre::Result<()> {
                     "tick" => {
                         let process_span = span!(Level::INFO, "process_tick");
                         let _p = process_span.enter();
-                        let command = BattCommand {
-                            servo: [
-                                fastrand::u16(..),
-                                fastrand::u16(..),
-                                fastrand::u16(..),
-                                fastrand::u16(..),
-                            ],
+
+                        let command: MainCommand = match counter % 4 {
+                            0 => MainCommand::AttachServo,
+                            1 => MainCommand::DetachServo,
+                            2 => MainCommand::GetStatus,
+                            3 => MainCommand::Setup,
+                            _ => unreachable!(),
                         };
+                        counter += 1;
+
                         node.send_output(output.clone(), metadata.parameters, command.into_arrow())
                             .unwrap();
                     }

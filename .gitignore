@@ -5,6 +5,7 @@ out/
 
 # 自分用 
 .devcontainer/
+.remote/
 .vscode/
 sftp/
 zenoh.json

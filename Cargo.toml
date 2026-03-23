@@ -5,16 +5,14 @@ members = [
     "nodes/types",
     "nodes/pc/control_logic",
     "nodes/pc/controller_rx",
-    "nodes/pc/udp_rx_rpi",
-    "nodes/pc/udp_tx_rpi",
     "nodes/rpi/bno_sensor",
-    "nodes/rpi/udp_rx_pc",
-    "nodes/rpi/udp_tx_pc",
     "nodes/rpi/udp_tx_esp",
+    "nodes/rpi/tcp_esp",
     "nodes/tests/input",
-    "otlp",
     "nodes/tests/otlp_log",
-    "nodes/tests/send_command"
+    "nodes/tests/send_command",
+    "nodes/tests/send_main_command",
+    "otlp",
 ]
 
 [workspace.package]

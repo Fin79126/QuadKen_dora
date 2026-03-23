@@ -1,0 +1,44 @@
+nodes:
+  - id: send_command
+    build: cargo build -p send_command
+    path: ../target/debug/send_command
+    inputs:
+      tick: dora/timer/millis/100
+    outputs:
+      - command
+
+  - id: send_main_command
+    build: cargo build -p send_main_command
+    path: ../target/debug/send_main_command
+    inputs:
+      tick: dora/timer/secs/4
+    outputs:
+      - main_command
+
+  - id: udp_tx_esp
+    build: cargo build -p udp_tx_esp
+    path: ../target/debug/udp_tx_esp
+    env:
+      ESP_IP: "192.168.11.28"
+      ESP_UDP_PORT: "5001"
+    inputs:
+      command: send_command/command
+
+  - id: tcp_esp
+    build: cargo build -p tcp_esp
+    path: ../target/debug/tcp_esp
+    env:
+      ESP_IP: "192.168.11.28"
+      ESP_TCP_PORT: "6001"
+    inputs:
+      main_command: send_main_command/main_command
+    outputs:
+      - status
+
+  - id: input
+    build: cargo build -p input
+    path: ../target/debug/input
+    inputs:
+      input_test: tcp_esp/status
+
+

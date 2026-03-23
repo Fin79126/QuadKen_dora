@@ -64,6 +64,7 @@ dora daemon --machine-id rpi --coordinator-addr <coordinator_ip>
 
 
 # うまくいかないとき
+- ubuntuでは ファイアウォールがいらないことがあるが、raspOSだとちゃんと必要
 - Docker側のForwardAddressが原因
 - ラズパイの実行権限
 - dora coordinatorに接続後 dora buildすると、相手マシンでbuildしちゃう -> --local オプションで解決
@@ -93,7 +94,7 @@ dora start ./dataflow.yaml
 - sudo apt install i2c-tools
   sudo i2cdetect -y 1
 
-# ラズパイ Rust インストール
+# ラズパイ Rust インストール 無理だった 重すぎて
 - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
   - 1 Proceed with installation (default)
 - cargo -V (source "$HOME/.cargo/env")

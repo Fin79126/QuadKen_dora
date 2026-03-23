@@ -5,58 +5,18 @@ use dora_node_api::{
 use eyre::Context;
 use std::collections::BTreeMap;
 use tracing::{Level, debug, error, info, span};
-use types::{ImuData, MotorCommand, StatusController};
+use types::{BattCommand, ImuData, StatusController};
 
-fn compute_motor_command(controller: &StatusController, imu: &ImuData) -> MotorCommand {
-    // ----------------------------
-    // ① 基本移動（前後）
-    // ----------------------------
-    let base = controller.move_power;
-
-    // ----------------------------
-    // ② 旋回（左右差動）
-    // ----------------------------
-    let turn = controller.angle_horizontal;
-
-    // ----------------------------
-    // ③ 姿勢補正（ロール）
-    // ----------------------------
-    // IMUのrollを使って安定化
-    let roll_correction = imu.roll * controller.roll_power;
-
-    // ----------------------------
-    // ④ モーター出力
-    // ----------------------------
-    let mut left = base + turn - roll_correction;
-    let mut right = base - turn + roll_correction;
-
-    // ----------------------------
-    // ⑤ 出力制限（重要）
-    // ----------------------------
-    left = left.clamp(-1.0, 1.0);
-    right = right.clamp(-1.0, 1.0);
-
-    // ----------------------------
-    // ⑥ サーボ制御（上下角）
-    // ----------------------------
-    let mut servo = controller.angle_vertical;
-
-    // サーボも安全範囲に制限（例）
-    servo = servo.clamp(-1.0, 1.0);
-
-    // ----------------------------
-    // ⑦ ボタン処理（例）
-    // ----------------------------
-    // 例: ボタン0が押されたら緊急停止
-    if controller.buttons & (1 << 0) != 0 {
-        left = 0.0;
-        right = 0.0;
-    }
-
-    MotorCommand {
-        motor_left: left,
-        motor_right: right,
-        servo,
+fn compute_batt_command(controller: &StatusController, imu: &ImuData) -> BattCommand {
+    // ここに制御ロジックを実装する
+    // これはあくまでダミーの例です
+    BattCommand {
+        servo: [
+            (controller.angle_horizontal * 1000.0) as u16,
+            (controller.angle_vertical * 1000.0) as u16,
+            (imu.roll * 1000.0) as u16,
+            (imu.pitch * 1000.0) as u16,
+        ],
     }
 }
 
@@ -112,7 +72,7 @@ fn run(mut node: DoraNode, mut events: EventStream) -> eyre::Result<()> {
                         // ここで制御ロジックを実行
                         if let (Some(imu), Some(controller)) = (&latest_imu, &latest_controller) {
                             // 制御ロジックの実装例（ダミー）
-                            let command = compute_motor_command(controller, imu);
+                            let command = compute_batt_command(controller, imu);
                             debug!("Computed command: {:?}", command);
                             node.send_output(
                                 out_command.clone(),
